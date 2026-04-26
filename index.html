@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoImmune Pro | Clinical Diagnostic Suite</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --med-blue: #0056b3;
+            --med-light-blue: #eef5ff;
+            --med-teal: #00a8cc;
+            --med-danger: #dc3545;
+            --med-text: #334155;
+            --sidebar-bg: #ffffff;
+            --body-bg: #f4f7fa;
+            --border-color: #cbd5e1;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--body-bg);
+            color: var(--med-text);
+            margin: 0;
+            display: flex;
+        }
+
+        /* Medical Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            height: 100vh;
+            position: fixed;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.03);
+        }
+
+        .sidebar-brand {
+            padding: 30px;
+            background: var(--med-blue);
+            color: white;
+            text-align: center;
+        }
+
+        .sidebar-brand i { font-size: 2.5rem; margin-bottom: 10px; }
+
+        .nav-links { padding: 20px 0; }
+        .nav-item {
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            color: var(--med-text);
+            text-decoration: none;
+            transition: 0.3s;
+            font-weight: 500;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: var(--med-light-blue);
+            color: var(--med-blue);
+            border-right: 4px solid var(--med-blue);
+        }
+        .nav-item i { margin-right: 15px; width: 20px; font-size: 1.1rem; }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 40px;
+            width: calc(100% - 280px);
+        }
+
+        .clinical-header {
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .clinical-header h1 { margin: 0; color: var(--med-blue); font-size: 1.8rem; }
+
+        /* Data Panels */
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .panel-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--med-blue);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-title i { color: var(--med-teal); }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .form-field { display: flex; flex-direction: column; }
+        label { font-size: 0.8rem; font-weight: 600; color: #64748b; margin-bottom: 6px; }
+        .required::after { content: " *"; color: var(--med-danger); }
+
+        input, select {
+            padding: 10px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        input:focus { outline: none; border-color: var(--med-blue); box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1); }
+
+        /* Action Buttons */
+        .button-row { display: flex; gap: 15px; justify-content: center; margin: 40px 0; }
+        
+        .btn {
+            padding: 14px 30px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.3s;
+        }
+
+        .btn-analyze { background: var(--med-blue); color: white; }
+        .btn-analyze:hover { background: #004494; transform: translateY(-2px); }
+        
+        /* New Refresh Button Style */
+        .btn-refresh { background: #64748b; color: white; }
+        .btn-refresh:hover { background: #475569; transform: translateY(-2px); }
+
+        .btn-download { background: var(--med-teal); color: white; display: none; }
+        .btn-download:hover { background: #008ba8; transform: translateY(-2px); }
+
+        /* Assessment Result */
+        #assessmentPanel {
+            display: block;
+            text-align: center;
+            border-left: 8px solid var(--med-blue);
+            background: linear-gradient(to right, #f8fbff, #ffffff);
+        }
+
+        .risk-display {
+            font-size: 4rem;
+            font-weight: 800;
+            color: var(--med-blue);
+            margin: 10px 0;
+        }
+
+        .diagnosis-tag {
+            display: inline-block;
+            background: var(--med-danger);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-brand">
+        <i class="fas fa-microscope"></i>
+        <div style="font-weight: 800; font-size: 1.2rem;">SPAR</div>
+        <div style="font-size: 0.7rem; opacity: 0.8;">Diagnostic Support v1.0</div>
+    </div>
+    <div class="nav-links">
+        <a href="#" class="nav-item active"><i class="fas fa-plus-square"></i> New Case</a>
+    
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="clinical-header">
+        <div>
+            <h1>Autoimmune Risk Assessment</h1>
+            <p style="color: #64748b; margin: 5px 0 0;">Please enter patient laboratory markers and clinical observations.</p>
+        </div>
+        <div style="text-align: right; color: #94a3b8; font-size: 0.8rem;">
+            Ref: <span id="reportID">#992-IDX</span><br>
+            Date: <span id="currentDate"></span>
+        </div>
+    </div>
+
+    
+    <form id="clinicalForm" action="/predict" method="post">
+        <div class="panel">
+            <div class="panel-title"><i class="fas fa-user-circle"></i> Patient Demographics</div>
+            <div class="input-grid">
+                <div class="form-field"><label class="required">Age</label><input type="number" id="Age" name="Age"></div>
+                <div class="form-field">
+                    <label class="required">Gender</label>
+                    <select id="Gender">
+                        <option value="">Select</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label>Family History of Autoimmune Disease</label>
+                    <select id="Family_History">
+                        <option value="0">No / Unknown</option>
+                        <option value="1">Yes (First Degree)</option>
+                    </select>
+                </div>
+                <div class="form-field"><label>Sickness Duration (Months)</label><input type="number" step="0.1" id="Sickness_Duration_Months"></div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title"><i class="fas fa-tint"></i> Hematology (CBC & Inflammatory)</div>
+            <div class="input-grid">
+                <div class="form-field"><label class="required">RBC Count</label><input type="number" step="0.01" id="RBC_Count" name="RBC_Count"></div>
+                <div class="form-field"><label class="required">WBC Count</label><input type="number" step="0.01" id="WBC_Count" name="WBC_Count"></div>
+                <div class="form-field"><label class="required">Hemoglobin</label><input type="number" step="0.01" id="Hemoglobin" name="Hemoglobin"></div>
+                <div class="form-field"><label class="required">Lymphocytes</label><input type="number" step="0.01" id="Lymphocytes" name="Lymphocytes"></div>
+                <div class="form-field"><label class="required">Platelet Count</label><input type="number" step="0.01" id="PLT_Count"></div>
+                <div class="form-field"><label>ESR</label><input type="number" step="0.01" id="ESR"></div>
+                <div class="form-field"><label>CRP</label><input type="number" step="0.01" id="CRP"></div>
+                <div class="form-field"><label>ANA</label><input type="number" step="0.01" id="ANA"></div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title"><i class="fas fa-virus"></i> Serology & Antibody Titer (0=No, 1=Yes)</div>
+            <div class="input-grid" id="antibodyGrid"></div>
+        </div>
+
+        <div class="button-row">
+            <button type="submit" class="btn btn-analyze">
+            
+                <i class="fas fa-stethoscope"></i> GENERATE ASSESSMENT
+            </button>
+            <button type="button" class="btn btn-refresh" onclick="refreshForm()">
+                <i class="fas fa-sync-alt"></i> REFRESH FORM
+            </button>
+            <button type="button" id="dlBtn" class="btn btn-download" onclick="downloadReport()">
+                <i class="fas fa-file-export"></i> DOWNLOAD CLINICAL REPORT
+            </button>
+        </div>
+    </form>
+
+    <div id="assessmentPanel" class="panel">
+        <h3 style="color: var(--med-blue); margin: 0;">PREDICTIVE DIAGNOSTIC SUMMARY</h3>
+        <p style="color: #64748b; margin: 10px 0 0;">Autoimmune Risk Percentage:</p>
+        <div class="risk-display" id="riskOutput">0%</div>
+        <div class="diagnosis-tag">
+            {{ result if result else "Scanning..." }}
+        </div>
+        
+        <p style="font-size: 0.85rem; color: #64748b; font-style: italic;">
+            Note: This assessment is based on comparative biomarker analysis and requires physician verification.
+        </p>
+    </div>
+</div>
+
+<script>
+    const antibodyList = [
+        "Anti-dsDNA", "Anti-Sm", "Rheumatoid factor", "ACPA", "Anti-TPO", "Anti-Tg", 
+        "Anti-SMA", "Low-grade fever", "Fatigue", "Rashes/Lesions", "Joint Pain", 
+        "Anti_Ro_SSA", "Anti_La_SSB", "ANCA", "anti_Scl_70"
+    ];
+
+    const grid = document.getElementById('antibodyGrid');
+    antibodyList.forEach(item => {
+        grid.innerHTML += `
+            <div class="form-field">
+                <label>${item.replace(/_/g, ' ')}</label>
+                <select id="${item.replace(/ /g, '_')}" class="binary-val">
+                    <option value="0">0 (Negative)</option>
+                    <option value="1">1 (Positive)</option>
+                </select>
+            </div>
+        `;
+    });
+
+    document.getElementById('currentDate').innerText = new Date().toDateString();
+
+    function runAnalysis() {
+        const mandatory = ["Age", "Gender", "RBC_Count", "WBC_Count", "Hemoglobin", "Lymphocytes", "PLT_Count"];
+        let isValid = true;
+        
+        mandatory.forEach(id => {
+            const el = document.getElementById(id);
+            if (!el.value) {
+                el.style.borderColor = "var(--med-danger)";
+                isValid = false;
+            } else {
+                el.style.borderColor = "var(--border-color)";
+            }
+        });
+
+        if (!isValid) {
+            alert("Error: Please fill in the required Patient Demographics and Hematology metrics.");
+            return;
+        }
+
+        let positiveMarkers = 0;
+        document.querySelectorAll('.binary-val').forEach(select => {
+            if(select.value == "1") positiveMarkers++;
+        });
+
+        // Calculate risk
+        let risk = Math.min(Math.round((positiveMarkers / antibodyList.length) * 100) + 12, 94);
+        
+        // Add logic for Family History (+5% if positive)
+        if(document.getElementById('Family_History').value == "1") {
+            risk = Math.min(risk + 5, 99);
+        }
+
+        let diagnosis = "Low Autoimmune Activity";
+        if (risk > 75) diagnosis = "SLE (Systemic Lupus) Suspected";
+        else if (risk > 50) diagnosis = "Autoimmune Pattern Detected";
+
+        document.getElementById('assessmentPanel').style.display = 'block';
+        document.getElementById('dlBtn').style.display = 'flex';
+        document.getElementById('riskOutput').innerText = risk + "%";
+        //document.getElementById('diseaseOutput').innerText = diagnosis;
+
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+
+    // Refresh function to clear everything
+    function refreshForm() {
+        if(confirm("Are you sure you want to clear all data?")) {
+            document.getElementById('clinicalForm').reset();
+            document.getElementById('assessmentPanel').style.display = 'none';
+            document.getElementById('dlBtn').style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
+
+    function downloadReport() {
+        const id = document.getElementById('reportID').innerText;
+        let content = `CLINICAL ASSESSMENT REPORT [${id}]\n`;
+        content += `Date: ${new Date().toLocaleString()}\n`;
+        content += `-------------------------------------------\n\n`;
+        
+        content += `PATIENT DATA:\n`;
+        const allInputs = document.querySelectorAll('input, select');
+        allInputs.forEach(input => {
+            if(input.id) {
+                content += `${input.id.replace(/_/g, ' ')}: ${input.value}\n`;
+            }
+        });
+
+        content += `\nAI ASSESSMENT RESULTS:\n`;
+        content += `Autoimmune Risk: ${document.getElementById('riskOutput').innerText}\n`;
+        content += `Preliminary Diagnosis: ${document.getElementById('diseaseOutput').innerText}\n`;
+        content += `\n-------------------------------------------\n`;
+        content += `Disclaimer: This is a predictive tool. Results must be validated by a licensed physician.`;
+
+        const blob = new Blob([content], { type: 'text/plain' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `Clinical_Report_${id.replace('#','')}.txt`;
+        link.click();
+    }
+</script>
+
+</body>
+</html>
